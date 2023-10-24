@@ -53,7 +53,7 @@ def scrape_trending_link(link):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Collect trending articles from the Montreal Gazette")
     parser.add_argument(
         "-o", metavar="<output file>", help="file to write to", required=True
     )
