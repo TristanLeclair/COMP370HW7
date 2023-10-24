@@ -4,7 +4,7 @@ This repo contains a simple python web scraping CLI tool
 
 ## TODO
 
-- Web scraper
+- Containerize
 
 ## Pitfalls
 
@@ -13,3 +13,9 @@ This repo contains a simple python web scraping CLI tool
 ## Python
 
 `python -m pip install -r requirements.txt`
+
+# Running
+
+`python -m scripts.python.collect_trending -h` from info on the tool
+
+`python -m scripts.python.collect_trending -o trending.json` to run and send to `trending.json`
