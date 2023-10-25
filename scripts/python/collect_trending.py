@@ -1,8 +1,11 @@
 import argparse
 import json
+from pathlib import Path
 
 from bs4 import BeautifulSoup
 import requests
+
+CACHING = True
 
 URL_BASE = "https://montrealgazette.com"
 URL_FRONT_PAGE = "{}/category/news/".format(URL_BASE)
@@ -13,8 +16,22 @@ headers = {
 
 
 def soupify(url):
-    page = requests.get(url, headers=headers)
-    soup = BeautifulSoup(page.content, "html.parser", from_encoding="utf-8")
+    if CACHING:
+        fpath = Path(f"cache/{url.replace('/', '_')}.html")
+        print(fpath)
+        if fpath.exists():
+            with open(fpath, "r") as f:
+                page = f.read()
+        else:
+            page = requests.get(url, headers=headers).content
+            # create cache file
+            fpath.parent.mkdir(parents=True, exist_ok=True)
+            with open(fpath, "w") as f:
+                f.write(page.decode("utf-8"))
+    else:
+        page = requests.get(url, headers=headers).content
+
+    soup = BeautifulSoup(page, "html.parser", from_encoding="utf-8")
     return soup
 
 
@@ -34,7 +51,6 @@ def scrape_trending_link(link):
 
     soup = soupify(URL)
 
-    # find title
     title = soup.find("h1", class_="article-title")
     opening_blurb = soup.find("p", class_="article-subtitle")
     meta = soup.find("div", class_="article-meta")
@@ -53,7 +69,9 @@ def scrape_trending_link(link):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Collect trending articles from the Montreal Gazette")
+    parser = argparse.ArgumentParser(
+        description="Collect trending articles from the Montreal Gazette"
+    )
     parser.add_argument(
         "-o", metavar="<output file>", help="file to write to", required=True
     )
@@ -72,7 +90,6 @@ def main():
     articles = []
     for link in links:
         info = scrape_trending_link(link)
-        # add info to json file
         articles.append(info)
 
     json.dump(articles, open(filename, "w"), ensure_ascii=False)
