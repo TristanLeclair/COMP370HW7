@@ -12,6 +12,7 @@ warnings.filterwarnings(
 
 
 CACHING = True
+LOGGING = True
 
 URL_BASE = "https://montrealgazette.com"
 URL_FRONT_PAGE = "{}/category/news/".format(URL_BASE)
@@ -21,6 +22,16 @@ headers = {
 }
 
 
+def log(msg):
+    if LOGGING:
+        print(msg)
+
+
+def send_request(url):
+    log(f"Sending request to {url}")
+    return requests.get(url, headers=headers).content
+
+
 def soupify(url):
     if CACHING:
         fpath = Path(f"cache/{url.replace('/', '_')}.html")
@@ -28,13 +39,13 @@ def soupify(url):
             with open(fpath, "r") as f:
                 page = f.read()
         else:
-            page = requests.get(url, headers=headers).content
+            page = send_request(url)
             # create cache file
             fpath.parent.mkdir(parents=True, exist_ok=True)
             with open(fpath, "w") as f:
                 f.write(page.decode("utf-8"))
     else:
-        page = requests.get(url, headers=headers).content
+        page = send_request(url)
 
     soup = BeautifulSoup(page, "html.parser", from_encoding="utf-8")
     return soup
@@ -44,7 +55,7 @@ def fetch_front_page():
     return soupify(URL_FRONT_PAGE)
 
 
-def scrape_for_trending_links(soup):
+def find_trending_links(soup):
     widgets = soup.find("div", class_="list-widget-trending")
     link_classes = widgets.find_all(class_="article-card__link")
     links = [link["href"] for link in link_classes]
@@ -73,14 +84,25 @@ def scrape_trending_link(link):
 
 
 def parse_args():
+    global CACHING, LOGGING
     parser = argparse.ArgumentParser(
         description="Collect trending articles from the Montreal Gazette"
     )
     parser.add_argument(
         "-o", metavar="<output file>", help="file to write to", required=True
     )
+    # add optional argument for caching
+    parser.add_argument(
+        "-c", metavar="<cache>", help="cache pages", required=False, default=CACHING
+    )
+    # add optional argument for logging
+    parser.add_argument(
+        "-l", metavar="<log>", help="enable logging", required=False, default=LOGGING
+    )
     args = parser.parse_args()
     filename = args.o
+    CACHING = args.c
+    LOGGING = args.l
     return filename
 
 
@@ -89,7 +111,7 @@ def main():
 
     front_page = fetch_front_page()
 
-    links = scrape_for_trending_links(front_page)
+    links = find_trending_links(front_page)
 
     articles = []
     for link in links:
