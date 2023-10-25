@@ -2,6 +2,8 @@
 
 This repo contains a simple python web scraping CLI tool
 
+It scrapes the top trending articles from the front page of the [Montreal Gazette](https://montrealgazette.com/category/news/) and sends them to a json file
+
 ## TODO
 
 - Containerize
