@@ -86,23 +86,31 @@ def scrape_trending_link(link):
 def parse_args():
     global CACHING, LOGGING
     parser = argparse.ArgumentParser(
-        description="Collect trending articles from the Montreal Gazette"
+        description="Collect trending articles from the Montreal Gazette",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
-        "-o", metavar="<output file>", help="file to write to", required=True
+        "-o", metavar="<output file>", help="file to write to", required=True, default="trending.json"
     )
     # add optional argument for caching
     parser.add_argument(
-        "-c", metavar="<cache>", help="cache pages", required=False, default=CACHING
+        "--cache",
+        action=argparse.BooleanOptionalAction,
+        help="Toggle caching",
+        default=True,
     )
     # add optional argument for logging
     parser.add_argument(
-        "-l", metavar="<log>", help="enable logging", required=False, default=LOGGING
+        # "-l", metavar="<log>", help="enable logging", required=False, default=LOGGING, type=bool
+        "--log",
+        action=argparse.BooleanOptionalAction,
+        help="Toggle logging",
+        default=False,
     )
     args = parser.parse_args()
     filename = args.o
-    CACHING = args.c
-    LOGGING = args.l
+    CACHING = args.caching
+    LOGGING = args.logging
     return filename
 
 
