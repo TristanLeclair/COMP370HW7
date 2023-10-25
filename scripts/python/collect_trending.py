@@ -109,8 +109,8 @@ def parse_args():
     )
     args = parser.parse_args()
     filename = args.o
-    CACHING = args.caching
-    LOGGING = args.logging
+    CACHING = args.cache
+    LOGGING = args.log
     return filename
 
 
