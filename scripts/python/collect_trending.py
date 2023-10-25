@@ -1,9 +1,15 @@
 import argparse
 import json
 from pathlib import Path
+import warnings
 
 from bs4 import BeautifulSoup
 import requests
+
+warnings.filterwarnings(
+    "ignore", category=UserWarning, module="bs4"
+)  # ignore bs4 warnings about decoding utf-8
+
 
 CACHING = True
 
