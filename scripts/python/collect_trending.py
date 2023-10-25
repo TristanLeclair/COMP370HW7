@@ -18,7 +18,6 @@ headers = {
 def soupify(url):
     if CACHING:
         fpath = Path(f"cache/{url.replace('/', '_')}.html")
-        print(fpath)
         if fpath.exists():
             with open(fpath, "r") as f:
                 page = f.read()
@@ -64,7 +63,6 @@ def scrape_trending_link(link):
         "author": author.text,
         "blurb": opening_blurb.text,
     }
-    print(info)
     return info
 
 
